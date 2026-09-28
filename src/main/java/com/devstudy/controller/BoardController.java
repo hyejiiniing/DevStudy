@@ -1,23 +1,21 @@
 package com.devstudy.controller;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 import javax.servlet.http.HttpSession;
 
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,8 +28,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.devstudy.file.BoardFileStorage;
 import com.devstudy.service.BoardService;
-import com.devstudy.vo.BoardVO;
 import com.devstudy.vo.BoardFileVO;
+import com.devstudy.vo.BoardVO;
+import com.devstudy.vo.NoticeVO;
 
 @Controller
 @RequestMapping("/board")
@@ -61,10 +60,15 @@ public class BoardController {
                     HttpStatus.BAD_REQUEST, "올바르지 않은 게시판입니다.");
         }
         
-        if (Integer.valueOf(5).equals(boardType)) {
-    	    model.addAttribute("faqList", boardService.selectFaqList());
-    	    return "board/faq";
-    	}
+        if (boardType == 5) {
+            model.addAttribute("faqList", boardService.selectFaqList());
+            return "board/faq";
+        }
+        
+        if (boardType == 6) {
+            model.addAttribute("noticeList", boardService.selectNoticeList());
+            return "board/notice";
+        }
 
         if (!"all".equals(searchType)
                 && !"title".equals(searchType)
@@ -459,7 +463,7 @@ public class BoardController {
         }
     }
     
-    @GetMapping("/admin/faq/list")
+    @GetMapping("/faq/list")
     public String adminFaqList(
             HttpSession session,
             Model model) throws Exception {
@@ -468,7 +472,7 @@ public class BoardController {
 
         model.addAttribute("faqList", boardService.selectFaqList());
 
-        return "admin/faq/list";
+        return "/faq/list";
     }
 
     private void checkFaqAdmin(HttpSession session) {
@@ -484,5 +488,44 @@ public class BoardController {
                     HttpStatus.FORBIDDEN,
                     "관리자만 접근할 수 있습니다.");
         }
+    }
+    
+    @GetMapping("/notice/list")
+    public String noticeList(
+            HttpSession session,
+            Model model) throws Exception {
+
+        checkFaqAdmin(session);
+
+        model.addAttribute("noticeList", boardService.selectNoticeList());
+
+        return "/notice/list";
+    }
+    
+    @GetMapping("/notice/detail")
+    public String noticeDetail(
+            @RequestParam("noticeIdx") Long noticeIdx,
+            Model model) throws Exception {
+
+        if (noticeIdx <= 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "올바르지 않은 공지사항 번호입니다.");
+        }
+
+        NoticeVO condition = new NoticeVO();
+        condition.setNoticeIdx(noticeIdx);
+
+        NoticeVO notice = boardService.selectNotice(condition);
+
+        if (notice == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "공지사항을 찾을 수 없습니다.");
+        }
+
+        model.addAttribute("notice", notice);
+
+        return "notice/detail";
     }
 }

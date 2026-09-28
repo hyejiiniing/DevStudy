@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.devstudy.vo.BoardVO;
 import com.devstudy.vo.FaqVO;
+import com.devstudy.vo.NoticeVO;
 
 public interface BoardMapper {
 
@@ -16,5 +17,8 @@ public interface BoardMapper {
 	public BoardVO selectBoardForUpdate(BoardVO vo) throws Exception;
 	
 	public List<FaqVO> selectFaqList() throws Exception;
+	
+	public List<NoticeVO> selectNoticeList() throws Exception;
+	public NoticeVO selectNotice(NoticeVO vo) throws Exception;
 	
 }

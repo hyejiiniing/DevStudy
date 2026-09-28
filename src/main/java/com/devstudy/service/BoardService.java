@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.devstudy.vo.BoardFileVO;
 import com.devstudy.vo.BoardVO;
 import com.devstudy.vo.FaqVO;
+import com.devstudy.vo.NoticeVO;
 
 public interface BoardService {
 
@@ -38,5 +39,7 @@ public interface BoardService {
     
     public List<FaqVO> selectFaqList() throws Exception;
     
-    
+    public List<NoticeVO> selectNoticeList() throws Exception;
+	public NoticeVO selectNotice(NoticeVO vo) throws Exception;
+	
 }

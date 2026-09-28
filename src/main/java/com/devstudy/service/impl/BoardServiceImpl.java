@@ -22,6 +22,7 @@ import com.devstudy.service.BoardService;
 import com.devstudy.vo.BoardFileVO;
 import com.devstudy.vo.BoardVO;
 import com.devstudy.vo.FaqVO;
+import com.devstudy.vo.NoticeVO;
 
 @Service
 public class BoardServiceImpl implements BoardService {
@@ -32,6 +33,7 @@ public class BoardServiceImpl implements BoardService {
     private final BoardMapper boardMapper;
     private final BoardFileMapper boardFileMapper;
     private final BoardFileStorage boardFileStorage;
+    
 
     public BoardServiceImpl(
             BoardMapper boardMapper,
@@ -533,9 +535,31 @@ public class BoardServiceImpl implements BoardService {
         return result;
     }
     
+   
     @Override
     @Transactional(readOnly = true)
     public List<FaqVO> selectFaqList() throws Exception {
         return boardMapper.selectFaqList();
+    }
+    
+    // 공지사항 
+    @Override
+    @Transactional(readOnly = true)
+    public List<NoticeVO> selectNoticeList() throws Exception {
+        return boardMapper.selectNoticeList();
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public NoticeVO selectNotice(NoticeVO vo) throws Exception {
+
+        if (vo == null
+                || vo.getNoticeIdx() == null
+                || vo.getNoticeIdx() <= 0) {
+            throw new IllegalArgumentException(
+                    "올바르지 않은 공지사항 번호입니다.");
+        }
+
+        return boardMapper.selectNotice(vo);
     }
 }
