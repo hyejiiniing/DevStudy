@@ -20,5 +20,6 @@ public interface BoardMapper {
 	
 	public List<NoticeVO> selectNoticeList() throws Exception;
 	public NoticeVO selectNotice(NoticeVO vo) throws Exception;
+	public int insertNotice(NoticeVO vo) throws Exception;
 	
 }

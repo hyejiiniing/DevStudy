@@ -562,4 +562,65 @@ public class BoardServiceImpl implements BoardService {
 
         return boardMapper.selectNotice(vo);
     }
+    
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int insertNotice(
+            NoticeVO vo,
+            Long loginMemberIdx,
+            String loginRole) throws Exception {
+
+        if (loginMemberIdx == null || !"ADMIN".equals(loginRole)) {
+            throw new IllegalArgumentException(
+                    "관리자만 공지사항을 등록할 수 있습니다.");
+        }
+
+        if (vo == null) {
+            throw new IllegalArgumentException(
+                    "공지사항 정보를 입력해주세요.");
+        }
+
+        String title = vo.getTitle() == null
+                ? "" : vo.getTitle().strip();
+
+        String content = vo.getContent() == null
+                ? "" : vo.getContent();
+
+        if (title.isEmpty() || title.length() > 256) {
+            throw new IllegalArgumentException(
+                    "제목은 1~256자로 입력해주세요.");
+        }
+
+        if (content.isBlank()) {
+            throw new IllegalArgumentException(
+                    "내용을 입력해주세요.");
+        }
+
+        if (content.getBytes(StandardCharsets.UTF_8).length > 65535) {
+            throw new IllegalArgumentException(
+                    "본문이 너무 깁니다. 내용을 줄여주세요.");
+        }
+
+        if ((!Integer.valueOf(0).equals(vo.getIsPinned())
+                && !Integer.valueOf(1).equals(vo.getIsPinned()))
+                || (!Integer.valueOf(0).equals(vo.getIsVisible())
+                && !Integer.valueOf(1).equals(vo.getIsVisible()))) {
+            throw new IllegalArgumentException(
+                    "상단 고정 또는 공개 설정이 올바르지 않습니다.");
+        }
+
+        vo.setTitle(title);
+        vo.setContent(content);
+        vo.setMemberIdx(loginMemberIdx);
+        vo.setNoticeIdx(null);
+
+        int result = boardMapper.insertNotice(vo);
+
+        if (result != 1 || vo.getNoticeIdx() == null) {
+            throw new IllegalStateException(
+                    "공지사항 등록에 실패했습니다.");
+        }
+
+        return result;
+    }
 }

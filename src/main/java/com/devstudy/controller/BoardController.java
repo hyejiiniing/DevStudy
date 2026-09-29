@@ -524,4 +524,90 @@ public class BoardController {
 
         return "notice/detail";
     }
+    
+    private void checkNoticeAdmin(HttpSession session) {
+
+        if (session.getAttribute("loginMemberIdx") == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "로그인이 필요합니다.");
+        }
+
+        if (!"ADMIN".equals(session.getAttribute("loginRole"))) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "관리자만 접근할 수 있습니다.");
+        }
+    }
+
+    @GetMapping("/notice/write")
+    public String noticeWriteForm(
+            HttpSession session,
+            Model model) {
+
+        checkNoticeAdmin(session);
+
+        if (session.getAttribute("noticeWriteToken") == null) {
+            session.setAttribute(
+                    "noticeWriteToken", UUID.randomUUID().toString());
+        }
+
+        NoticeVO form = new NoticeVO();
+        form.setIsPinned(0);
+        form.setIsVisible(1);
+
+        model.addAttribute("noticeForm", form);
+
+        return "notice/write";
+    }
+
+    @PostMapping("/notice/write")
+    public String noticeWrite(
+            @RequestParam(name = "title", defaultValue = "") String title,
+            @RequestParam(name = "content", defaultValue = "") String content,
+            @RequestParam(name = "isPinned", defaultValue = "0") int isPinned,
+            @RequestParam(name = "isVisible") int isVisible,
+            @RequestParam(name = "writeToken", required = false) String writeToken,
+            HttpSession session,
+            Model model,
+            RedirectAttributes redirectAttributes) throws Exception {
+
+        checkNoticeAdmin(session);
+
+        String expectedToken =
+                (String) session.getAttribute("noticeWriteToken");
+
+        if (expectedToken == null || !expectedToken.equals(writeToken)) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "등록 화면을 새로 열고 다시 시도해주세요.");
+        }
+
+        NoticeVO vo = new NoticeVO();
+        vo.setTitle(title);
+        vo.setContent(content);
+        vo.setIsPinned(isPinned);
+        vo.setIsVisible(isVisible);
+
+        try {
+            boardService.insertNotice(
+                    vo,
+                    (Long) session.getAttribute("loginMemberIdx"),
+                    (String) session.getAttribute("loginRole"));
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("noticeForm", vo);
+            model.addAttribute("errorMessage", e.getMessage());
+            return "notice/write";
+        }
+
+        session.removeAttribute("noticeWriteToken");
+
+        String message = isVisible == 1
+                ? "공지사항이 등록되었습니다."
+                : "비공개로 저장되었습니다. 공개 목록에는 표시되지 않습니다.";
+
+        redirectAttributes.addFlashAttribute("successMessage", message);
+
+        return "redirect:/board/notice/list";
+    }
 }

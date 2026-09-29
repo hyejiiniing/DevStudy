@@ -30,6 +30,16 @@
                 <c:out value="${successMessage}"/>
             </div>
         </c:if>
+        
+        <c:if test="${not empty sessionScope.loginMemberIdx
+              and sessionScope.loginRole == 'ADMIN'}">
+		    <div class="notice-admin-actions">
+		        <a class="notice-create-button"
+		           href="${pageContext.request.contextPath}/board/notice/write">
+		            공지 등록 ↗
+		        </a>
+		    </div>
+		</c:if>
 
         <section class="notice-panel" aria-labelledby="notice-heading">
             <div class="notice-panel-heading">

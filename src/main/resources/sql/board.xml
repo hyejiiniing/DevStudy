@@ -159,4 +159,24 @@
       AND isVisible = 1
 </select>
 
+<insert id="insertNotice"
+        parameterType="com.devstudy.vo.NoticeVO"
+        useGeneratedKeys="true"
+        keyProperty="noticeIdx">
+    INSERT INTO notice (
+        memberIdx,
+        title,
+        content,
+        isPinned,
+        isVisible
+    )
+    VALUES (
+        #{memberIdx},
+        #{title},
+        #{content},
+        #{isPinned},
+        #{isVisible}
+    )
+</insert>
+
 </mapper>

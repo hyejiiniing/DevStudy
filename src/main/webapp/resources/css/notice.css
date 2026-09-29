@@ -413,3 +413,26 @@
         margin: 0 22px;
     }
 }
+
+.notice-admin-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+}
+
+.notice-page .notice-create-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 18px;
+    border: 1px solid #171717;
+    border-radius: 9px;
+    background: #171717;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.notice-page .notice-create-button:hover {
+    background: #383838;
+}

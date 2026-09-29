@@ -41,5 +41,9 @@ public interface BoardService {
     
     public List<NoticeVO> selectNoticeList() throws Exception;
 	public NoticeVO selectNotice(NoticeVO vo) throws Exception;
+	public int insertNotice(
+	        NoticeVO vo,
+	        Long loginMemberIdx,
+	        String loginRole) throws Exception;
 	
 }
