@@ -67,7 +67,7 @@ public class BoardController {
         
         if (boardType == 6) {
             model.addAttribute("noticeList", boardService.selectNoticeList());
-            return "board/notice";
+            return "board/notice/list";
         }
 
         if (!"all".equals(searchType)
@@ -491,15 +491,11 @@ public class BoardController {
     }
     
     @GetMapping("/notice/list")
-    public String noticeList(
-            HttpSession session,
-            Model model) throws Exception {
-
-        checkFaqAdmin(session);
+    public String noticeList(Model model) throws Exception {
 
         model.addAttribute("noticeList", boardService.selectNoticeList());
 
-        return "/notice/list";
+        return "notice/list";
     }
     
     @GetMapping("/notice/detail")

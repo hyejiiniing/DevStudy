@@ -3,6 +3,7 @@ package com.devstudy.mapper;
 import java.util.List;
 
 import com.devstudy.vo.BoardFileVO;
+import com.devstudy.vo.NoticeVO;
 
 public interface BoardFileMapper {
 
@@ -14,4 +15,6 @@ public interface BoardFileMapper {
             BoardFileVO vo) throws Exception;
     public int deleteBoardFile(BoardFileVO vo) throws Exception;
     public int deleteBoardFiles(BoardFileVO vo) throws Exception;
+    public List<NoticeVO> selectNoticeList() throws Exception;
+	public NoticeVO selectNotice(NoticeVO vo) throws Exception;
 }

@@ -380,7 +380,7 @@
             Q&amp;A
         </a>
         <a class="tab ${boardType == 6 ? 'active' : ''}"
-           href="${pageContext.request.contextPath}/board/list?boardType=6">
+           href="${pageContext.request.contextPath}/board/notice">
             공지사항
         </a>
     </nav>

@@ -128,27 +128,35 @@
 	</select>
 	
 	<select id="selectNoticeList"
-	        resultType="com.devstudy.vo.NoticeVO">
-	    SELECT noticeIdx, memberIdx, title, viewCount,
-	           isPinned, isVisible, createdAt, updatedAt
-	    FROM notice
-	    WHERE isVisible = 1
-	    ORDER BY isPinned DESC, noticeIdx DESC
-	</select>
-    
-    <select id="selectNotice" resultType="com.devstudy.vo.NoticeVO">
-	    SELECT noticeIdx,
-	           memberIdx,
-	           title,
-	           content,
-	           viewCount,
-	           isPinned,
-	           isVisible,
-	           createdAt,
-	           updatedAt
-	    FROM notice
-	    WHERE noticeIdx = #{noticeIdx}
-	      AND isVisible = 1
-	</select>
+        resultType="com.devstudy.vo.NoticeVO">
+    SELECT noticeIdx,
+           memberIdx,
+           title,
+           viewCount,
+           isPinned,
+           isVisible,
+           createdAt,
+           updatedAt
+    FROM notice
+    WHERE isVisible = 1
+    ORDER BY isPinned DESC, noticeIdx DESC
+</select>
+
+<select id="selectNotice"
+        parameterType="com.devstudy.vo.NoticeVO"
+        resultType="com.devstudy.vo.NoticeVO">
+    SELECT noticeIdx,
+           memberIdx,
+           title,
+           content,
+           viewCount,
+           isPinned,
+           isVisible,
+           createdAt,
+           updatedAt
+    FROM notice
+    WHERE noticeIdx = #{noticeIdx}
+      AND isVisible = 1
+</select>
 
 </mapper>

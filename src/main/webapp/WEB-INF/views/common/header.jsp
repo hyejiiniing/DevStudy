@@ -16,7 +16,7 @@
 			<a href="${pageContext.request.contextPath}/board/list?boardType=3">자격증</a>
 			<a href="${pageContext.request.contextPath}/board/list?boardType=4">스터디</a>
 			<a href="${pageContext.request.contextPath}/board/list?boardType=5">Q&amp;A</a>
-			<a href="${pageContext.request.contextPath}/board/list?boardType=6">공지사항</a>
+			<a href="${pageContext.request.contextPath}/board/notice/list">공지사항</a>
         </nav>
 
         <div class="account">
