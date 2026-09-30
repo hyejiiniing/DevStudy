@@ -39,11 +39,23 @@ public interface BoardService {
     
     public List<FaqVO> selectFaqList() throws Exception;
     
+    // 공지사항 
     public List<NoticeVO> selectNoticeList() throws Exception;
 	public NoticeVO selectNotice(NoticeVO vo) throws Exception;
 	public int insertNotice(
 	        NoticeVO vo,
 	        Long loginMemberIdx,
 	        String loginRole) throws Exception;
+	public List<NoticeVO> selectAdminNoticeList(
+	        Long loginMemberIdx, String loginRole) throws Exception;
+
+	public NoticeVO selectAdminNotice(
+	        NoticeVO vo, Long loginMemberIdx, String loginRole) throws Exception;
+
+	public int updateNotice(
+	        NoticeVO vo, Long loginMemberIdx, String loginRole) throws Exception;
+
+	public int deleteNotice(
+	        NoticeVO vo, Long loginMemberIdx, String loginRole) throws Exception;
 	
 }

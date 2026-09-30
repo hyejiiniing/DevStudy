@@ -33,11 +33,11 @@
         
         <c:if test="${not empty sessionScope.loginMemberIdx
               and sessionScope.loginRole == 'ADMIN'}">
-		    <div class="notice-admin-actions">
+		    <div class="notice-admin-actions">		    
 		        <a class="notice-create-button"
-		           href="${pageContext.request.contextPath}/board/notice/write">
-		            공지 등록 ↗
-		        </a>
+				   href="${pageContext.request.contextPath}/board/notice/admin/list">
+				    공지 관리
+				</a>
 		    </div>
 		</c:if>
 
@@ -107,3 +107,8 @@
     </main>
 </body>
 </html>
+<style>
+	.notice-admin-actions {
+    gap: 8px;
+}
+</style>

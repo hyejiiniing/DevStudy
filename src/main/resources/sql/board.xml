@@ -6,177 +6,216 @@
 <mapper namespace="com.devstudy.mapper.BoardMapper">
 
 	<sql id="boardSearchCondition">
-	    WHERE boardType = #{boardType}
-	
-	    <if test="keyword != null and keyword != ''">
-	        <choose>
-	            <when test="searchType == 'title'">
-	                AND title LIKE #{searchPattern} ESCAPE '!'
-	            </when>
-	            <when test="searchType == 'content'">
-	                AND content LIKE #{searchPattern} ESCAPE '!'
-	            </when>
-	            <otherwise>
-	                AND (
-	                    title LIKE #{searchPattern} ESCAPE '!'
-	                    OR content LIKE #{searchPattern} ESCAPE '!'
-	                )
-	            </otherwise>
-	        </choose>
-	    </if>
+		WHERE boardType = #{boardType}
+
+		<if test="keyword != null and keyword != ''">
+			<choose>
+				<when test="searchType == 'title'">
+					AND title LIKE #{searchPattern} ESCAPE '!'
+				</when>
+				<when test="searchType == 'content'">
+					AND content LIKE #{searchPattern} ESCAPE '!'
+				</when>
+				<otherwise>
+					AND (
+					title LIKE #{searchPattern} ESCAPE '!'
+					OR content LIKE #{searchPattern} ESCAPE '!'
+					)
+				</otherwise>
+			</choose>
+		</if>
 	</sql>
 
-    <select id="selectBoardList"
-            parameterType="com.devstudy.vo.BoardVO"
-            resultType="com.devstudy.vo.BoardVO">
-        SELECT boardIdx,
-               boardType,
-               category,
-               memberIdx,
-               title,
-               content,
-               viewCount,
-               createdAt,
-               updatedAt
-        FROM board
-	        <include refid="boardSearchCondition"/>
-	    ORDER BY boardIdx DESC
-	    LIMIT #{pageSize} OFFSET #{offset}
-    </select>
-    
-    <select id="selectBoardCount"
-	        parameterType="com.devstudy.vo.BoardVO"
-	        resultType="long">
-	    SELECT COUNT(*)
-	    FROM board
-	    <include refid="boardSearchCondition"/>
+	<select id="selectBoardList"
+		parameterType="com.devstudy.vo.BoardVO"
+		resultType="com.devstudy.vo.BoardVO">
+		SELECT boardIdx,
+		boardType,
+		category,
+		memberIdx,
+		title,
+		content,
+		viewCount,
+		createdAt,
+		updatedAt
+		FROM board
+		<include refid="boardSearchCondition" />
+		ORDER BY boardIdx DESC
+		LIMIT #{pageSize} OFFSET #{offset}
 	</select>
-    
-    <insert id="insertBoard"
-	        parameterType="com.devstudy.vo.BoardVO"
-	        useGeneratedKeys="true"
-	        keyProperty="boardIdx">
-	
-	    INSERT INTO board (
-	        boardType,
-	        category,
-	        memberIdx,
-	        title,
-	        content
-	    ) VALUES (
-	        #{boardType},
-	        #{category},
-	        #{memberIdx},
-	        #{title},
-	        #{content}
-	    )
-	
+
+	<select id="selectBoardCount"
+		parameterType="com.devstudy.vo.BoardVO" resultType="long">
+		SELECT COUNT(*)
+		FROM board
+		<include refid="boardSearchCondition" />
+	</select>
+
+	<insert id="insertBoard" parameterType="com.devstudy.vo.BoardVO"
+		useGeneratedKeys="true" keyProperty="boardIdx">
+
+		INSERT INTO board (
+		boardType,
+		category,
+		memberIdx,
+		title,
+		content
+		) VALUES (
+		#{boardType},
+		#{category},
+		#{memberIdx},
+		#{title},
+		#{content}
+		)
+
 	</insert>
-	
-	<select id="selectBoard"
-	        parameterType="com.devstudy.vo.BoardVO"
-	        resultType="com.devstudy.vo.BoardVO">
-	    SELECT boardIdx,
-	           boardType,
-	           category,
-	           memberIdx,
-	           title,
-	           content,
-	           viewCount,
-	           createdAt,
-	           updatedAt
-	    FROM board
-	    WHERE boardIdx = #{boardIdx}
+
+	<select id="selectBoard" parameterType="com.devstudy.vo.BoardVO"
+		resultType="com.devstudy.vo.BoardVO">
+		SELECT boardIdx,
+		boardType,
+		category,
+		memberIdx,
+		title,
+		content,
+		viewCount,
+		createdAt,
+		updatedAt
+		FROM board
+		WHERE boardIdx = #{boardIdx}
 	</select>
-	
-	<update id="updateBoard"
-	        parameterType="com.devstudy.vo.BoardVO">
-	    UPDATE board
-	    SET category = #{category},
-	        title = #{title},
-	        content = #{content},
-	        updatedAt = CURRENT_TIMESTAMP
-	    WHERE boardIdx = #{boardIdx}
-	      AND memberIdx = #{memberIdx}
+
+	<update id="updateBoard" parameterType="com.devstudy.vo.BoardVO">
+		UPDATE board
+		SET category = #{category},
+		title = #{title},
+		content = #{content},
+		updatedAt = CURRENT_TIMESTAMP
+		WHERE boardIdx = #{boardIdx}
+		AND memberIdx = #{memberIdx}
 	</update>
-	
-	<delete id="deleteBoard"
-	        parameterType="com.devstudy.vo.BoardVO">
-	    DELETE FROM board
-	    WHERE boardIdx = #{boardIdx}
-	      AND memberIdx = #{memberIdx}
+
+	<delete id="deleteBoard" parameterType="com.devstudy.vo.BoardVO">
+		DELETE FROM board
+		WHERE boardIdx = #{boardIdx}
+		AND memberIdx = #{memberIdx}
 	</delete>
-	
+
 	<select id="selectBoardForUpdate"
-	        parameterType="com.devstudy.vo.BoardVO"
-	        resultType="com.devstudy.vo.BoardVO">
-	    SELECT boardIdx,
-	           boardType,
-	           memberIdx
-	    FROM board
-	    WHERE boardIdx = #{boardIdx}
-	    FOR UPDATE
+		parameterType="com.devstudy.vo.BoardVO"
+		resultType="com.devstudy.vo.BoardVO">
+		SELECT boardIdx,
+		boardType,
+		memberIdx
+		FROM board
+		WHERE boardIdx = #{boardIdx}
+		FOR UPDATE
 	</select>
-	
+
 	<select id="selectFaqList" resultType="com.devstudy.vo.FaqVO">
-	    SELECT faqIdx,
-	           question,
-	           answer
-	    FROM faq
-	    WHERE isVisible = 1
-	    ORDER BY sortOrder ASC, faqIdx DESC
+		SELECT faqIdx,
+		question,
+		answer
+		FROM faq
+		WHERE isVisible = 1
+		ORDER BY sortOrder ASC, faqIdx DESC
 	</select>
-	
+
 	<select id="selectNoticeList"
-        resultType="com.devstudy.vo.NoticeVO">
-    SELECT noticeIdx,
-           memberIdx,
-           title,
-           viewCount,
-           isPinned,
-           isVisible,
-           createdAt,
-           updatedAt
-    FROM notice
-    WHERE isVisible = 1
-    ORDER BY isPinned DESC, noticeIdx DESC
-</select>
+		resultType="com.devstudy.vo.NoticeVO">
+		SELECT noticeIdx,
+		memberIdx,
+		title,
+		viewCount,
+		isPinned,
+		isVisible,
+		createdAt,
+		updatedAt
+		FROM notice
+		WHERE isVisible = 1
+		ORDER BY isPinned DESC, noticeIdx DESC
+	</select>
 
-<select id="selectNotice"
-        parameterType="com.devstudy.vo.NoticeVO"
-        resultType="com.devstudy.vo.NoticeVO">
-    SELECT noticeIdx,
-           memberIdx,
-           title,
-           content,
-           viewCount,
-           isPinned,
-           isVisible,
-           createdAt,
-           updatedAt
-    FROM notice
-    WHERE noticeIdx = #{noticeIdx}
-      AND isVisible = 1
-</select>
+	<select id="selectNotice"
+		parameterType="com.devstudy.vo.NoticeVO"
+		resultType="com.devstudy.vo.NoticeVO">
+		SELECT noticeIdx,
+		memberIdx,
+		title,
+		content,
+		viewCount,
+		isPinned,
+		isVisible,
+		createdAt,
+		updatedAt
+		FROM notice
+		WHERE noticeIdx = #{noticeIdx}
+		AND isVisible = 1
+	</select>
 
-<insert id="insertNotice"
-        parameterType="com.devstudy.vo.NoticeVO"
-        useGeneratedKeys="true"
-        keyProperty="noticeIdx">
-    INSERT INTO notice (
-        memberIdx,
-        title,
-        content,
-        isPinned,
-        isVisible
-    )
-    VALUES (
-        #{memberIdx},
-        #{title},
-        #{content},
-        #{isPinned},
-        #{isVisible}
-    )
-</insert>
+	<insert id="insertNotice"
+		parameterType="com.devstudy.vo.NoticeVO" useGeneratedKeys="true"
+		keyProperty="noticeIdx">
+		INSERT INTO notice (
+		memberIdx,
+		title,
+		content,
+		isPinned,
+		isVisible
+		)
+		VALUES (
+		#{memberIdx},
+		#{title},
+		#{content},
+		#{isPinned},
+		#{isVisible}
+		)
+	</insert>
+
+	<select id="selectAdminNoticeList"
+		resultType="com.devstudy.vo.NoticeVO">
+		SELECT noticeIdx,
+		memberIdx,
+		title,
+		isPinned,
+		isVisible,
+		createdAt,
+		updatedAt
+		FROM notice
+		ORDER BY isPinned DESC, noticeIdx DESC
+	</select>
+
+	<select id="selectAdminNotice"
+		parameterType="com.devstudy.vo.NoticeVO"
+		resultType="com.devstudy.vo.NoticeVO">
+		SELECT noticeIdx,
+		memberIdx,
+		title,
+		content,
+		viewCount,
+		isPinned,
+		isVisible,
+		createdAt,
+		updatedAt
+		FROM notice
+		WHERE noticeIdx = #{noticeIdx}
+	</select>
+
+	<update id="updateNotice"
+		parameterType="com.devstudy.vo.NoticeVO">
+		UPDATE notice
+		SET title = #{title},
+		content = #{content},
+		isPinned = #{isPinned},
+		isVisible = #{isVisible},
+		updatedAt = CURRENT_TIMESTAMP
+		WHERE noticeIdx = #{noticeIdx}
+	</update>
+
+	<delete id="deleteNotice"
+		parameterType="com.devstudy.vo.NoticeVO">
+		DELETE FROM notice
+		WHERE noticeIdx = #{noticeIdx}
+	</delete>
 
 </mapper>
