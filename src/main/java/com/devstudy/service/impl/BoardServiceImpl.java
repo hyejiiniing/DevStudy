@@ -618,4 +618,153 @@ public class BoardServiceImpl implements BoardService {
 
 		return result;
 	}
+	
+	private void validateFaqAdmin(
+	        Long loginMemberIdx, String loginRole) {
+
+	    if (loginMemberIdx == null || !"ADMIN".equals(loginRole)) {
+	        throw new IllegalArgumentException(
+	                "관리자만 FAQ를 관리할 수 있습니다.");
+	    }
+	}
+
+	private void validateFaqIdx(FaqVO vo) {
+
+	    if (vo == null
+	            || vo.getFaqIdx() == null
+	            || vo.getFaqIdx() <= 0) {
+	        throw new IllegalArgumentException(
+	                "올바르지 않은 FAQ 번호입니다.");
+	    }
+	}
+
+	private void validateFaqForm(FaqVO vo) {
+
+	    if (vo == null) {
+	        throw new IllegalArgumentException(
+	                "질문과 답변을 입력해주세요.");
+	    }
+
+	    String question = vo.getQuestion() == null
+	            ? "" : vo.getQuestion().strip();
+
+	    String answer = vo.getAnswer() == null
+	            ? "" : vo.getAnswer();
+
+	    if (question.isEmpty() || question.length() > 256) {
+	        throw new IllegalArgumentException(
+	                "질문은 1~256자로 입력해주세요.");
+	    }
+
+	    if (answer.isBlank()) {
+	        throw new IllegalArgumentException(
+	                "답변을 입력해주세요.");
+	    }
+
+	    if (answer.getBytes(StandardCharsets.UTF_8).length > 65535) {
+	        throw new IllegalArgumentException(
+	                "답변이 너무 깁니다. 내용을 줄여주세요.");
+	    }
+
+	    if (vo.getSortOrder() == null || vo.getSortOrder() < 0) {
+	        throw new IllegalArgumentException(
+	                "노출 순서는 0 이상의 정수로 입력해주세요.");
+	    }
+
+	    if (!Integer.valueOf(0).equals(vo.getIsVisible())
+	            && !Integer.valueOf(1).equals(vo.getIsVisible())) {
+	        throw new IllegalArgumentException(
+	                "공개 여부가 올바르지 않습니다.");
+	    }
+
+	    vo.setQuestion(question);
+	    vo.setAnswer(answer);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<FaqVO> selectAdminFaqList(
+	        Long loginMemberIdx,
+	        String loginRole) throws Exception {
+
+	    validateFaqAdmin(loginMemberIdx, loginRole);
+
+	    return boardMapper.selectAdminFaqList();
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public FaqVO selectAdminFaq(
+	        FaqVO vo,
+	        Long loginMemberIdx,
+	        String loginRole) throws Exception {
+
+	    validateFaqAdmin(loginMemberIdx, loginRole);
+	    validateFaqIdx(vo);
+
+	    return boardMapper.selectAdminFaq(vo);
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public int saveFaq(
+	        FaqVO vo,
+	        Long loginMemberIdx,
+	        String loginRole) throws Exception {
+
+	    validateFaqAdmin(loginMemberIdx, loginRole);
+	    validateFaqForm(vo);
+
+	    // 번호가 없으면 신규 등록
+	    if (vo.getFaqIdx() == null) {
+	        vo.setMemberIdx(loginMemberIdx);
+
+	        int result = boardMapper.insertFaq(vo);
+
+	        if (result != 1 || vo.getFaqIdx() == null) {
+	            throw new IllegalStateException(
+	                    "FAQ 등록에 실패했습니다.");
+	        }
+
+	        return result;
+	    }
+
+	    // 번호가 있으면 기존 FAQ 수정
+	    validateFaqIdx(vo);
+
+	    if (boardMapper.selectAdminFaq(vo) == null) {
+	        throw new IllegalArgumentException(
+	                "FAQ가 없거나 이미 삭제되었습니다.");
+	    }
+
+	    int result = boardMapper.updateFaq(vo);
+
+	    // 동일한 내용으로 저장하면 0이 반환되는 환경도 있음
+	    if (result == 0 && boardMapper.selectAdminFaq(vo) == null) {
+	        throw new IllegalArgumentException(
+	                "FAQ가 없거나 이미 삭제되었습니다.");
+	    }
+
+	    return result;
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public int deleteFaq(
+	        FaqVO vo,
+	        Long loginMemberIdx,
+	        String loginRole) throws Exception {
+
+	    validateFaqAdmin(loginMemberIdx, loginRole);
+	    validateFaqIdx(vo);
+
+	    int result = boardMapper.deleteFaq(vo);
+
+	    if (result != 1) {
+	        throw new IllegalArgumentException(
+	                "FAQ가 없거나 이미 삭제되었습니다.");
+	    }
+
+	    return result;
+	}
 }

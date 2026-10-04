@@ -217,5 +217,70 @@
 		DELETE FROM notice
 		WHERE noticeIdx = #{noticeIdx}
 	</delete>
+	
+	<select id="selectAdminFaqList"
+        resultType="com.devstudy.vo.FaqVO">
+    SELECT faqIdx,
+           question,
+           sortOrder,
+           isVisible,
+           memberIdx,
+           createdAt,
+           updatedAt
+    FROM faq
+    ORDER BY sortOrder ASC, faqIdx DESC
+</select>
+
+<select id="selectAdminFaq"
+        parameterType="com.devstudy.vo.FaqVO"
+        resultType="com.devstudy.vo.FaqVO">
+    SELECT faqIdx,
+           question,
+           answer,
+           sortOrder,
+           isVisible,
+           memberIdx,
+           createdAt,
+           updatedAt
+    FROM faq
+    WHERE faqIdx = #{faqIdx}
+</select>
+
+<insert id="insertFaq"
+        parameterType="com.devstudy.vo.FaqVO"
+        useGeneratedKeys="true"
+        keyProperty="faqIdx">
+    INSERT INTO faq (
+        question,
+        answer,
+        sortOrder,
+        isVisible,
+        memberIdx
+    )
+    VALUES (
+        #{question},
+        #{answer},
+        #{sortOrder},
+        #{isVisible},
+        #{memberIdx}
+    )
+</insert>
+
+<update id="updateFaq"
+        parameterType="com.devstudy.vo.FaqVO">
+    UPDATE faq
+    SET question = #{question},
+        answer = #{answer},
+        sortOrder = #{sortOrder},
+        isVisible = #{isVisible},
+        updatedAt = CURRENT_TIMESTAMP
+    WHERE faqIdx = #{faqIdx}
+</update>
+
+<delete id="deleteFaq"
+        parameterType="com.devstudy.vo.FaqVO">
+    DELETE FROM faq
+    WHERE faqIdx = #{faqIdx}
+</delete>
 
 </mapper>

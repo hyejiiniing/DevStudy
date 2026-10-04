@@ -58,4 +58,16 @@ public interface BoardService {
 	public int deleteNotice(
 	        NoticeVO vo, Long loginMemberIdx, String loginRole) throws Exception;
 	
+	public List<FaqVO> selectAdminFaqList(
+	        Long loginMemberIdx, String loginRole) throws Exception;
+
+	public FaqVO selectAdminFaq(
+	        FaqVO vo, Long loginMemberIdx, String loginRole) throws Exception;
+
+	public int saveFaq(
+	        FaqVO vo, Long loginMemberIdx, String loginRole) throws Exception;
+
+	public int deleteFaq(
+	        FaqVO vo, Long loginMemberIdx, String loginRole) throws Exception;
+	
 }

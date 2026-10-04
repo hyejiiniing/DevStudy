@@ -19,6 +19,11 @@ public interface BoardMapper {
 	
 	// FAQ
 	public List<FaqVO> selectFaqList() throws Exception;
+	public List<FaqVO> selectAdminFaqList() throws Exception;
+	public FaqVO selectAdminFaq(FaqVO vo) throws Exception;
+	public int insertFaq(FaqVO vo) throws Exception;
+	public int updateFaq(FaqVO vo) throws Exception;
+	public int deleteFaq(FaqVO vo) throws Exception;
 	
 	//	공지사항  
 	public List<NoticeVO> selectNoticeList() throws Exception;
