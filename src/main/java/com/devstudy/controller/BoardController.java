@@ -30,6 +30,7 @@ import com.devstudy.file.BoardFileStorage;
 import com.devstudy.service.BoardService;
 import com.devstudy.vo.BoardFileVO;
 import com.devstudy.vo.BoardVO;
+import com.devstudy.vo.FaqVO;
 import com.devstudy.vo.NoticeVO;
 
 @Controller
@@ -375,15 +376,15 @@ public class BoardController {
 		}
 	}
 
-	@GetMapping("/faq/list")
-	public String adminFaqList(HttpSession session, Model model) throws Exception {
-
-		checkFaqAdmin(session);
-
-		model.addAttribute("faqList", boardService.selectFaqList());
-
-		return "/faq/list";
-	}
+//	@GetMapping("/faq/list")
+//	public String adminFaqList(HttpSession session, Model model) throws Exception {
+//
+//		checkFaqAdmin(session);
+//
+//		model.addAttribute("faqList", boardService.selectFaqList());
+//
+//		return "/faq/list";
+//	}
 
 	private void checkFaqAdmin(HttpSession session) {
 
@@ -394,6 +395,168 @@ public class BoardController {
 		if (!"ADMIN".equals(session.getAttribute("loginRole"))) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "관리자만 접근할 수 있습니다.");
 		}
+	}
+	
+	@GetMapping("/admin/faq/list")
+	public String adminFaqList(
+	        HttpSession session,
+	        Model model) throws Exception {
+
+	    checkFaqAdmin(session);
+	    prepareFaqActionToken(session);
+
+	    model.addAttribute(
+	            "faqList",
+	            boardService.selectAdminFaqList(
+	                    (Long) session.getAttribute("loginMemberIdx"),
+	                    (String) session.getAttribute("loginRole")));
+
+	    return "admin/faq/list";
+	}
+	
+	private void prepareFaqActionToken(HttpSession session) {
+
+	    if (session.getAttribute("faqActionToken") == null) {
+	        session.setAttribute(
+	                "faqActionToken", UUID.randomUUID().toString());
+	    }
+	}
+
+	private void checkFaqActionToken(
+	        HttpSession session, String actionToken) {
+
+	    String expected =
+	            (String) session.getAttribute("faqActionToken");
+
+	    if (expected == null || !expected.equals(actionToken)) {
+	        throw new ResponseStatusException(
+	                HttpStatus.FORBIDDEN,
+	                "화면을 새로 열고 다시 시도해주세요.");
+	    }
+	}
+
+	@GetMapping("/admin/faq/write")
+	public String adminFaqWrite(
+	        HttpSession session,
+	        Model model) {
+
+	    checkFaqAdmin(session);
+	    prepareFaqActionToken(session);
+
+	    FaqVO form = new FaqVO();
+	    form.setSortOrder(0);
+	    form.setIsVisible(1);
+
+	    model.addAttribute("faqForm", form);
+
+	    return "admin/faq/form";
+	}
+
+	@GetMapping("/admin/faq/update")
+	public String adminFaqUpdate(
+	        @RequestParam("faqIdx") Long faqIdx,
+	        HttpSession session,
+	        Model model) throws Exception {
+
+	    checkFaqAdmin(session);
+
+	    if (faqIdx <= 0) {
+	        throw new ResponseStatusException(
+	                HttpStatus.BAD_REQUEST,
+	                "올바르지 않은 FAQ 번호입니다.");
+	    }
+
+	    FaqVO condition = new FaqVO();
+	    condition.setFaqIdx(faqIdx);
+
+	    FaqVO faq = boardService.selectAdminFaq(
+	            condition,
+	            (Long) session.getAttribute("loginMemberIdx"),
+	            (String) session.getAttribute("loginRole"));
+
+	    if (faq == null) {
+	        throw new ResponseStatusException(
+	                HttpStatus.NOT_FOUND,
+	                "FAQ를 찾을 수 없습니다.");
+	    }
+
+	    prepareFaqActionToken(session);
+	    model.addAttribute("faqForm", faq);
+
+	    return "admin/faq/form";
+	}
+
+	@PostMapping("/admin/faq/save")
+	public String adminFaqSave(
+	        @RequestParam(name = "faqIdx", required = false) Long faqIdx,
+	        @RequestParam(name = "question", defaultValue = "") String question,
+	        @RequestParam(name = "answer", defaultValue = "") String answer,
+	        @RequestParam("sortOrder") int sortOrder,
+	        @RequestParam("isVisible") int isVisible,
+	        @RequestParam(name = "actionToken", required = false) String actionToken,
+	        HttpSession session,
+	        Model model,
+	        RedirectAttributes redirectAttributes) throws Exception {
+
+	    checkFaqAdmin(session);
+	    checkFaqActionToken(session, actionToken);
+
+	    boolean creating = faqIdx == null;
+
+	    FaqVO vo = new FaqVO();
+	    vo.setFaqIdx(faqIdx);
+	    vo.setQuestion(question);
+	    vo.setAnswer(answer);
+	    vo.setSortOrder(sortOrder);
+	    vo.setIsVisible(isVisible);
+
+	    try {
+	        boardService.saveFaq(
+	                vo,
+	                (Long) session.getAttribute("loginMemberIdx"),
+	                (String) session.getAttribute("loginRole"));
+	    } catch (IllegalArgumentException e) {
+	        model.addAttribute("faqForm", vo);
+	        model.addAttribute("errorMessage", e.getMessage());
+	        return "admin/faq/form";
+	    }
+
+	    redirectAttributes.addFlashAttribute(
+	            "successMessage",
+	            creating ? "FAQ가 등록되었습니다." : "FAQ가 수정되었습니다.");
+
+	    return "redirect:/board/admin/faq/list";
+	}
+
+	@PostMapping("/admin/faq/delete")
+	public String adminFaqDelete(
+	        @RequestParam("faqIdx") Long faqIdx,
+	        @RequestParam(name = "actionToken", required = false) String actionToken,
+	        HttpSession session,
+	        RedirectAttributes redirectAttributes) throws Exception {
+
+	    checkFaqAdmin(session);
+	    checkFaqActionToken(session, actionToken);
+
+	    FaqVO vo = new FaqVO();
+	    vo.setFaqIdx(faqIdx);
+
+	    try {
+	        boardService.deleteFaq(
+	                vo,
+	                (Long) session.getAttribute("loginMemberIdx"),
+	                (String) session.getAttribute("loginRole"));
+	    } catch (IllegalArgumentException e) {
+	        redirectAttributes.addFlashAttribute(
+	                "errorMessage", e.getMessage());
+
+	        return "redirect:/board/admin/faq/list";
+	    }
+
+	    redirectAttributes.addFlashAttribute(
+	            "successMessage", "FAQ가 삭제되었습니다.");
+
+	    return "redirect:/board/admin/faq/list";
 	}
 
 	@GetMapping("/notice/list")
